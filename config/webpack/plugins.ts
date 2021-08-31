@@ -10,6 +10,7 @@ import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 import envBuilder from '../env';
 import path from 'path';
 import paths from '../paths';
+import { clientOnly } from '../../scripts/utils';
 
 
 const env = envBuilder();
@@ -18,7 +19,6 @@ const isProfilerEnabled = () => process.argv.includes('--profile');
 
 const isDev = () => process.env.NODE_ENV === 'development';
 //TODO move this part to utils as a part of app
-export const clientOnly = () => process.argv.includes('--client-only');
 export const shared = [
     new MiniCssExtractPlugin({
         filename: isDev() ? '[name].css' : '[name].[contenthash].css',
