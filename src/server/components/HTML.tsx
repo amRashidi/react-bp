@@ -28,7 +28,6 @@ const HTML = ({
                 <link key={href} rel="stylesheet" href={href} />
             ))}
             <script
-                // eslint-disable-next-line react/no-danger
                 dangerouslySetInnerHTML={{
                     // TODO: Add jsesc/stringify here
                     // see: https://twitter.com/HenrikJoreteg/status/1143953338284703744
@@ -37,7 +36,6 @@ const HTML = ({
             />
         </head>
         <body>
-            {/* eslint-disable-next-line react/no-danger */}
             <div id="app" dangerouslySetInnerHTML={{ __html: children }} />
             {scripts.filter(Boolean).map((src) => (
                 <script key={src} src={src} />

@@ -29,6 +29,7 @@ module.exports = (api) => {
             '@babel/proposal-class-properties',
             '@babel/proposal-optional-chaining',
             '@babel/syntax-dynamic-import',
+            'babel-plugin-styled-components',
             'macros',
             isDev && isTargetWeb && 'react-refresh/babel',
         ].filter(Boolean),
