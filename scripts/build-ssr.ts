@@ -13,34 +13,12 @@ const HOST = process.env.HOST || 'http://localhost';
 const generateStaicHTML = async () => {
   const nodemon = require('nodemon');
   const fs = require('fs');
-  const puppeteer = require('puppeteer');
   const PORT = await choosePort('localhost', 8505);
   process.env.PORT = String(PORT);
 
   const script = nodemon({
     script: `${paths.serverBuild}/server.js`,
     ignore: ['*'],
-  });
-
-  script.on('start', async () => {
-    try {
-      //TODO: in next version we need to wait and retry actions instead of wait
-      await sleep(2000);
-      //https://github.com/puppeteer/puppeteer
-      //advantage of automation and ui testing with puppteer
-      const browser = await puppeteer.launch({
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      });
-      const page = await browser.newPage();
-      await page.goTo(`${HOST}:${PORT}`);
-      const pageContent = await page.content();
-      fs.WriteFileSync(`${paths.clientBuild}/index.html`, pageContent);
-      await browser.close();
-      script.emit('quit')
-    } catch (error) {
-      script.emit('quit');
-      logMessage(error, 'error')
-    }
   });
   script.on('exit', (code: number) => {
     logMessage(`check this code for more info: ${code}`)
