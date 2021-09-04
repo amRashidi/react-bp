@@ -1,6 +1,6 @@
 import thunk from 'redux-thunk';
 import { createStore, applyMiddleware, compose } from 'redux';
-import createRootReducer from './rootReducer';
+import createRootReducer from './reducers';
 
 type StoreParams = {
     initialState?: { [key: string]: any };
@@ -16,15 +16,15 @@ export const configureStore = ({ initialState, middleware = [] }: StoreParams) =
     const composeEnhancers = devtools || compose;
 
     const store = createStore(
-        createRootReducer(),
+        createRootReducer,
         initialState,
         composeEnhancers(applyMiddleware(...[thunk].concat(...middleware)))
     );
 
     if (process.env.NODE_ENV !== 'production') {
         if (module.hot) {
-            module.hot.accept('./rootReducer', () =>
-                store.replaceReducer(require('./rootReducer').default)
+            module.hot.accept('./reducers', () =>
+                store.replaceReducer(require('./reducers').default)
             );
         }
     }
