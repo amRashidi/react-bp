@@ -1,8 +1,10 @@
-import { combineReducers } from "redux";
-import todoItems from "./todo/todoItemsReducer";
-import visibilityFilter from "./todo/filterReducer";
-
-export default combineReducers({
-  todoItems,
-  visibilityFilter,
-});
+import { combineReducers } from 'redux';
+import todoReducer, { todoState } from './todo'
+const createRootReducer = () =>
+    combineReducers({
+        todo: todoReducer()
+    });
+export interface RootStates {
+    todo: todoState
+}
+export default createRootReducer;

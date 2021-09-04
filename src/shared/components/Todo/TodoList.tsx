@@ -7,11 +7,12 @@ import {
     toggleTodo,
 } from "shared/store/actions/todo";
 import { connect } from "react-redux";
-import {  RootState, TodoState } from "shared/store/types/todo";
-const mapStateToProps = (state: RootState) => {
-    
+import { TodoState } from "shared/store/types/todo";
+import { RootStates } from "shared/store/reducers";
+const mapStateToProps = (state: RootStates) => {
+
     return {
-        todoItems: getVisibleTodos(state.todoItems, state.visibilityFilter),
+        todoItems: getVisibleTodos(state.todo.todoItems, state.todo.visibilityFilter)
     };
 };
 

@@ -16,7 +16,7 @@ export const configureStore = ({ initialState, middleware = [] }: StoreParams) =
     const composeEnhancers = devtools || compose;
 
     const store = createStore(
-        createRootReducer,
+        createRootReducer(),
         initialState,
         composeEnhancers(applyMiddleware(...[thunk].concat(...middleware)))
     );
