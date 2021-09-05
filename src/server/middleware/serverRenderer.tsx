@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as express from 'express';
+// import * as fastify from 'fastify';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter as Router } from 'react-router-dom';
 import { Store } from 'redux';
@@ -10,25 +11,25 @@ import Html from '../components/HTML';
 
 const helmetContext = {};
 const routerContext = {};
-
-const serverRenderer: any = () => (
-    req: express.Request & { store: Store },
-    res: express.Response
-) => {
-    const content = renderToString(
-        <Provider store={res.locals.store}>
-            <Router location={req.url} context={routerContext}>
+const fastify = require('fastify')()
+const serverRenderer: any =
+    fastify.use((
+        req: express.Request & { store: Store },
+        res: express.Response) => {
+        const content = renderToString(
+            <Provider store={res.locals.store}>
+                <Router location={req.url} context={routerContext}>
                     <HelmetProvider context={helmetContext}>
                         <App />
                     </HelmetProvider>
-            </Router>
-        </Provider>
-    );
+                </Router>
+            </Provider>
+        );
 
-    const state = JSON.stringify(res.locals.store.getState());
+        const state = JSON.stringify(res.locals.store.getState());
 
-    return res.send(
-        '<!doctype html>' +
+        return res.send(
+            '<!doctype html>' +
             renderToString(
                 <Html
                     css={[res.locals.assetPath('bundle.css'), res.locals.assetPath('vendor.css')]}
@@ -39,7 +40,10 @@ const serverRenderer: any = () => (
                     {content}
                 </Html>
             )
-    );
-};
+        );
+    });
+fastify
+    .register(require('middie'))
+    .register(serverRenderer)
 
 export default serverRenderer;

@@ -1,5 +1,4 @@
 import getConfig from "../config/webpack";
-import express from 'express';
 import webpack from "webpack";
 import { compilerPromise, logMessage } from "./utils";
 import WebpackDevMiddleware from "webpack-dev-middleware";
@@ -8,7 +7,7 @@ import paths from "./../config/paths";
 
 const webpackConfig = getConfig(process.env.NODE_ENV || 'development');
 
-const app = express();
+const Fastify = require('fastify')
 
 //TODO: for all port definitions need to check if port is in used create a random port!!
 const PORT = process.env.PORT || 8500;
@@ -17,6 +16,8 @@ const PORT = process.env.PORT || 8500;
 const DEVSERVER_HOST = process.env.DEVSERVER_HOST || 'http://localhost';
 
 const start = async () => {
+    const app = Fastify()
+    await app.register(require('fastify-express'))
     const [clientConfig] = webpackConfig;
     clientConfig.entry.bundle = [
         `webpack-hot-middleware/client?path=${DEVSERVER_HOST}:${PORT}/__webpack_hmr`,
@@ -30,10 +31,6 @@ const start = async () => {
     );
     const clientPromise = compilerPromise('client', clientCompiler);
 
-    // const watchOptions = {
-    //     ignored: /node_modules/,
-    //     stats: clientConfig.stats,
-    // };
     app.use((_req, res, next) => {
         res.header('Access-Control-Allow-Origin', '*');
         return next();
@@ -45,8 +42,13 @@ const start = async () => {
         })
     );
     app.use(WebpackDevMiddleware(clientCompiler))
-
-    app.use('*', express.static(paths.clientBuild))
+    app.register(require('fastify-static'), {
+        root: paths.clientBuild,
+      })
+      app.register(require('fastify-static'), {
+        root: paths.clientBuild,
+        perfix:'/static'
+      })
 
     try {
         await clientPromise;

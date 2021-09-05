@@ -13,34 +13,36 @@ import addStore from './middleware/addStore';
 
 require('dotenv').config();
 
-const app = express();
+const Fastify = require('fastify')
+const app = Fastify()
 // const app = express.default();
 
 // Use Nginx or Apache to serve static assets in production or remove the if() around the following
 // lines to use the express.static middleware to serve assets for production (not recommended!)
 // if (process.env.NODE_ENV === 'development') {
-app.use(paths.publicPath, express.static(path.join(paths.clientBuild, paths.publicPath)));
+app.register(require('fastify-static'), {
+    root: path.join(paths.clientBuild, paths.publicPath),
+    perfix: paths.publicPath
+})
 // }
 
-app.use(cors());
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.register(require('fastify-cors'), {
+})
 // It's probably a good idea to serve these static assets with Nginx or Apache as well:
 
-app.use(addStore);
+// app.use(addStore);
 
-const manifestPath = path.join(paths.clientBuild, paths.publicPath);
+// const manifestPath = path.join(paths.clientBuild, paths.publicPath);
 
-app.use(
-    manifestHelpers({
-        manifestPath: `${manifestPath}/manifest.json`,
-    })
-);
+// app.use(
+//     manifestHelpers({
+//         manifestPath: `${manifestPath}/manifest.json`,
+//     })
+// );
 
 app.use(serverRenderer());
 
-app.use(errorHandler);
+// app.use(errorHandler);
 
 app.listen(process.env.PORT || 8500, () => {
     console.log(

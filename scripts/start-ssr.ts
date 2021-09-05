@@ -1,5 +1,4 @@
 import getConfig from "./../config/webpack";
-import express from 'express'
 import webpack from "webpack";
 import { compilerPromise, logMessage } from "./utils";
 import webpackHotMiddleware from 'webpack-hot-middleware';
@@ -10,8 +9,8 @@ import paths from "./../config/paths";
 //guard webpack crawl directory
 const webpackConfig = getConfig(process.env.NODE_ENV || 'development');
 
-//init express
-const app = express();
+//init fastify
+const Fastify = require('fastify')
 
 //guard webpack port
 const WEBPACK_PORT = process.env.WEBPACK_PORT || (!isNaN(Number(process.env.PORT)) ? process.env.PORT + 1 : 8600);
@@ -22,6 +21,9 @@ const DEV_SERVER_HOST = process.env.DEVSERVER_HOST || 'http://localhost';
 //config hot reload server
 
 const start = async () => {
+    const app = Fastify()
+    await app.register(require('fastify-express'))
+    // await app.register(require('fastify-static'))
     const [clientConfig, serverConfig] = webpackConfig;
     //add webpack-hot-middleware for hot reload in client side
     //dont need of react-transform-hmr.
@@ -73,10 +75,11 @@ const start = async () => {
     //TODO: as webpack 4.4 we dont need it
     app.use(webpackHotMiddleware(clientCompiler));
 
-    //express.static(root, [options])
-    //https://expressjs.com/en/starter/static-files.html
-    //register static path from paths to express
-    app.use('/static', express.static(paths.clientBuild));
+    //https://github.com/fastify/fastify-static#options
+    app.register(require('fastify-static'), {
+        root: paths.clientBuild,
+        perfix:'/static'
+      })
     app.listen(WEBPACK_PORT);
     //https://www.tabnine.com/code/javascript/functions/webpack/Compiler/watch
     //add webpack compilr watch config and error handler by global error message configs
@@ -103,28 +106,28 @@ const start = async () => {
     } catch (error) {
         logMessage(error, 'error')
     }
-    //register nodemoon for auto restart app after changes in dev mode
+    //register nodemoon for auto restart fastify after changes in dev mode
     /**
-     * add script path to watch to reset app on change them
+     * add script path to watch to reset fastify on change them
      * add ignore paths
      * delay for more safety
      * more info: check nodemon repo : https://github.com/remy/nodemon
      */
     const script = nodemon({
         script: `${paths.serverBuild}/server.js`,
-        ignore: ['src', '**/node_modules','scripts', 'config', './*.*', 'build/client', '**/locales', '**/tmp'],
+        ignore: ['src', '**/node_modules', 'scripts', 'config', './*.*', 'build/client', '**/locales', '**/tmp'],
         delay: 200
     })
     //log restart event by logger
     script.on('restart', () => {
-        logMessage('Server side app has been restarted.', 'warning');
+        logMessage('Server side fastify has been restarted.', 'warning');
     });
-    //terminat node app after quit
+    //terminat node fastify after quit
     script.on('quit', () => {
         console.log('Process ended');
         process.exit();
     });
-    //error detector (like CRASH app) and log its error
+    //error detector (like CRASH fastify) and log its error
     //TODO: need to get dynamic error message
     script.on('error', () => {
         logMessage('An error occured. Exiting', 'error');
