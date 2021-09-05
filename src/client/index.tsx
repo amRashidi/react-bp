@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { hydrate } from 'react-dom';
 import { Provider } from 'react-redux';
 import { Router } from 'react-router-dom';
